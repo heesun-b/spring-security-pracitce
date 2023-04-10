@@ -3,10 +3,16 @@ package shop.mtcoding.security_app.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
+
+    @Bean
+    BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -17,6 +23,9 @@ public class SecurityConfig {
         // 2. form 로그인 설정
         http.formLogin()
                 .loginPage("/loginForm")
+                // form 태그 input-name 설정 가능
+                .usernameParameter("username")
+                .passwordParameter("password")
                 // ProcessingUrl는 무조건 post, x-www-FormUrlEncoded
                 .loginProcessingUrl("/login")
                 // defaultSuccessUrl는 login 성공 시 이동될 페이지 경로
