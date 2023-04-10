@@ -31,9 +31,12 @@ public class SecurityConfig {
                 // defaultSuccessUrl는 login 성공 시 이동될 페이지 경로
                 .defaultSuccessUrl("/")
                 // .successHandler(null) - 로그인 성공 시 Handler
+                // 단,successHandler이 있으면 defaultSuccessUrl 실행되지 않음
+                // 경로 설정하고 싶으면 resp.sendRedirect("경로") 추가해주면 됨
                 .successHandler((req, resp, Authentication) -> {
                     // log 알려주기 전까지 본 코드에 '디버그' 키워드 붙이기
                     System.out.println("디버그: 로그인이 완료되었습니다");
+                    resp.sendRedirect("/");
                 })
                 // .failureHandler(null) - 로그인 실패 시 Handler
                 .failureHandler((req, resp, ex) -> {
@@ -47,7 +50,7 @@ public class SecurityConfig {
                     .authenticated()
                     // manager 경로는 MANAGER 혹은 admin role(권한) 필요
                     .antMatchers("/manager/**")
-                    .access("hasRole('ADMIN') or ('MANAGER')")
+                    .access("hasRole('ADMIN') or hasRole('MANAGER')")
                     // admin 경로는 ADMIN role(권한) 필요
                     .antMatchers("/admin/**")
                     .hasRole("ADMIN")

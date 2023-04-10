@@ -22,6 +22,7 @@ public class MyUserDetailsService implements UserDetailsService {
     // 위 모든 조건을 만족할 때 아래 코드가 실행 - Authentication 객체 만들어짐
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // jpa 사용 시
         Optional<User> userOP = userRepository.findByUsername(username);
         if (userOP.isPresent()) {
             return new MyUserDetails(userOP.get());
