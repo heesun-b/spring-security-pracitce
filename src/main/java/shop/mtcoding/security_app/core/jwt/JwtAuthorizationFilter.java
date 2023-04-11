@@ -52,8 +52,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             } catch (TokenExpiredException tee) {
                 log.error("토큰 만료");
                 chain.doFilter(request, response);
+            } finally {
+                chain.doFilter(request, response);
             }
         }
-        chain.doFilter(request, response);
     }
 }
