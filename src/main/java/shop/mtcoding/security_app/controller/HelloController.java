@@ -15,6 +15,10 @@ import shop.mtcoding.security_app.dto.UserRequest;
 import shop.mtcoding.security_app.dto.UserResponse;
 import shop.mtcoding.security_app.service.UserService;
 
+/*
+ * 로그 레벨 : trace, debug, info, warn, error
+ * 로그 남기는 방법 - 1) 파일로 남기기 2) 로그 전용 db 사용
+ */
 @RequiredArgsConstructor
 @Controller
 public class HelloController {
@@ -22,6 +26,11 @@ public class HelloController {
 
     @Value("${meta.name}")
     private String name;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login() {
+        return ResponseEntity.ok().body("로그인 ok");
+    }
 
     @GetMapping("/users/{id}")
     public ResponseEntity<?> userCheck(@PathVariable Long id,
