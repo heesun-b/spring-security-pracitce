@@ -25,4 +25,12 @@ public class UserRequest {
                     .build();
         }
     }
+
+    @Getter
+    @Setter
+    public static class LoginDTO {
+        private String username;
+        private String password;
+    }
+
 }

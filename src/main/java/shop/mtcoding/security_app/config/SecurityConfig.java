@@ -2,7 +2,10 @@ package shop.mtcoding.security_app.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -11,6 +14,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.extern.slf4j.Slf4j;
+import shop.mtcoding.security_app.core.jwt.JwtAuthorizationFilter;
 
 @Slf4j // 로그 남길 수 있는 어노테이션
 @Configuration
@@ -21,13 +25,30 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    // 인가할 때 필요
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    // JWT 필터 등록이 필요함
+    public class CustomSecurityFilterManager extends AbstractHttpConfigurer<CustomSecurityFilterManager, HttpSecurity> {
+        @Override
+        public void configure(HttpSecurity builder) throws Exception {
+            AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
+            builder.addFilter(new JwtAuthorizationFilter(authenticationManager));
+            super.configure(builder);
+        }
+    }
+
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // csrf = 잘못된 경로를 막는 것, disable 해주는 이유는 postman 테스트 위해
         // csr (외부 접근) 할 떄
         http.csrf().disable();
 
-        // iframe(inline frame) 막기
+        // iframe(inline frame) 막ㅈ기...
         http.headers().frameOptions().disable();
 
         // cors 재설정
@@ -42,12 +63,12 @@ public class SecurityConfig {
         http.formLogin().disable();
 
         // http basic 정책 해제
-        http.httpBasic().disable();
+        // http.httpBasic().disable();
 
         // 기타 추가할 수 있는 것: xss(lucy 필터) - javascript 공격을 막기 위한 필터
 
         // 커스텀 필터 설정 - security 필터 설정
-        // http.apply(null);
+        http.apply(new CustomSecurityFilterManager());
 
         // security 인증 실패 처리 - 위에서 formLogin을 disable 했기 때문에 따로 설정해주어야 함
         http.exceptionHandling().authenticationEntryPoint(
@@ -57,6 +78,10 @@ public class SecurityConfig {
                     log.info("인포: 인증 실패 : " + authException.getMessage());
                     log.warn("워닝: 인증 실패 : " + authException.getMessage());
                     log.error("에러: 인증 실패 : " + authException.getMessage());
+
+                    response.setContentType("text/plain; chatset=utf-8");
+                    response.setStatus(401);
+                    response.getWriter().println("인증 실패");
                 });
 
         // security 권한 실패 처리
@@ -65,6 +90,10 @@ public class SecurityConfig {
             log.info("인포: 권한 실패 : " + accessDeniedException.getMessage());
             log.warn("워닝: 권한 실패 : " + accessDeniedException.getMessage());
             log.error("에러: 권한 실패 : " + accessDeniedException.getMessage());
+
+            response.setContentType("text/plain; chatset=utf-8");
+            response.setStatus(403);
+            response.getWriter().println("권한 실패");
         });
 
         // 2. form 로그인 설정
@@ -126,4 +155,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 }

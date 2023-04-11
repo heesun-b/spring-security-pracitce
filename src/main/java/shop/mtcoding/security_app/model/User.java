@@ -14,10 +14,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @NoArgsConstructor // hibernate는 디폴트 생성자 필요
 @Entity // Hibernate가 관리 (영속/비영속/준영속)
 @Table(name = "user_tb")
-@Getter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

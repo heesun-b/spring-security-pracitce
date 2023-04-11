@@ -31,7 +31,7 @@ public class MyJwtProvider {
 
     public static DecodedJWT verify(String jwt) throws SignatureVerificationException, TokenExpiredException {
         // try catch 안 하는 이유 - handler 처리를 못 해서
-        DecodedJWT decodeJwt = JWT.require(Algorithm.HMAC512(SECRET)).build().verify(TOKEN_PREFIX + jwt);
+        DecodedJWT decodeJwt = JWT.require(Algorithm.HMAC512(SECRET)).build().verify(jwt);
         return decodeJwt;
     }
 }
